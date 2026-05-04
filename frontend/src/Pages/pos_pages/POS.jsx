@@ -54,39 +54,40 @@ export default function POS() {
     setAlertModal({ type, title, message, btnLabel, onClose: onClose ?? (() => setAlertModal(null)) });
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [prodRes, catRes] = await Promise.all([
-          fetch(`${import.meta.env.VITE_API_URL}/api/products`),
-          fetch(`${import.meta.env.VITE_API_URL}/api/productcategory`),
-        ]);
-        const [prodData, catData] = await Promise.all([
-          prodRes.json(),
-          catRes.json(),
-        ]);
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const [prodRes, catRes] = await Promise.all([
+        fetch(`${import.meta.env.VITE_API_URL}/api/products`),
+        fetch(`${import.meta.env.VITE_API_URL}/api/productcategory`),
+      ]);
+      const [prodData, catData] = await Promise.all([
+        prodRes.json(),
+        catRes.json(),
+      ]);
 
-        setProducts(prodData);
-        setCategories(['All', ...catData.map(c => c.name)]);
+      setProducts(prodData);
+      setCategories(['All', ...catData.map(c => c.name)]);
 
-        const initSels = {};
-        prodData.forEach(p => {
-          initSels[p._id] = {
-            set:  p.set?.[0]?.name  || '',
-            size: p.size?.[0]?.name || '',
-            qty:  p.quantityPerPack || 1,
-          };
-        });
-        setSels(initSels);
-      } catch (err) {
-        console.error('Failed to fetch data:', err);
-        showAlert('error', 'Failed to Load', 'Could not load products. Please check your connection and try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+      const initSels = {};
+      prodData.forEach(p => {
+        initSels[p._id] = {
+          set: p.set?.[0]?.name || '',
+          sizes: p.size?.map(s => s.name) || [], // ✅ ALL sizes preselected
+          qty: p.quantityPerPack || 1,
+        };
+      });
+      setSels(initSels);
+
+    } catch (err) {
+      console.error('Failed to fetch data:', err);
+      showAlert('error', 'Failed to Load', 'Could not load products.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchData();
+}, []);
 
   const filteredProducts = products.filter((p) => {
     const matchCat    = activeCategory === 'All' || p.category === activeCategory;
@@ -103,29 +104,35 @@ export default function POS() {
     setSels((prev) => ({ ...prev, [pid]: { ...prev[pid], [field]: val } }));
 
   const addToCart = (product) => {
-    const sel = sels[product._id];
-    const key = `${product._id}_${sel?.set}_${sel?.size}`;
-    setCart((prev) => {
-      const idx = prev.findIndex((i) => i.key === key);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = { ...next[idx], qty: next[idx].qty + (sel?.qty || 1) };
-        return next;
-      }
-      return [...prev, {
-        id:        Date.now() + Math.random(),
-        key,
-        productId: product._id,
-        name:      product.name,
-        img:       product.images?.[0] || '',
-        price:     product.wholesalePrice,
-        set:       sel?.set  || '',
-        size:      sel?.size || '',
-        sizes:     product.size?.map(s => s.name) || [],
-        qty:       sel?.qty  || 1,
-      }];
-    });
-  };
+  const sel = sels[product._id];
+
+  const key = `${product._id}_${sel?.set}_ALLSIZES`;
+
+  setCart((prev) => {
+    const idx = prev.findIndex((i) => i.key === key);
+
+    if (idx >= 0) {
+      const next = [...prev];
+      next[idx] = {
+        ...next[idx],
+        qty: next[idx].qty + (sel?.qty || 1),
+      };
+      return next;
+    }
+
+    return [...prev, {
+      id: Date.now() + Math.random(),
+      key,
+      productId: product._id,
+      name: product.name,
+      img: product.images?.[0] || '',
+      price: product.wholesalePrice,
+      set: sel?.set || '',
+      sizes: sel?.sizes || [], // ✅ store ALL sizes
+      qty: sel?.qty || 1,
+    }];
+  });
+};
 
   const removeFromCart = (id) => setCart((prev) => prev.filter((i) => i.id !== id));
   const updateCartQty  = (id, delta) =>
@@ -328,8 +335,10 @@ export default function POS() {
                       <p className="pos__cart-name">{item.name}</p>
                       <p className="pos__cart-variant">
                         {item.set}
-                        {item.sizes && item.sizes.length > 0 && (
-                          <span className="pos__cart-sizes"> · Size: {item.size}</span>
+                        {item.sizes?.length > 0 && (
+                          <span className="pos__cart-sizes">
+                            {' '}· Sizes: {item.sizes.join(', ')}
+                          </span>
                         )}
                       </p>
                       <p className="pos__cart-price">P {item.price.toLocaleString()}.00</p>
@@ -499,17 +508,13 @@ function ProductCard({ product, sel, onSel, onAdd }) {
             <div className="pos__sel-hdr">
               <span className="pos__sel-label">Size</span>
             </div>
-            {sizeRows.map((row, ri) => (
-              <div key={ri} className="pos__sel-row">
-                {row.map((s) => (
-                  <button
-                    key={s._id}
-                    className={`pos__sel-btn pos__sel-btn--size${sel?.size === s.name ? ' pos__sel-btn--on' : ''}`}
-                    onClick={() => onSel('size', s.name)}
-                  >{s.name}</button>
-                ))}
-              </div>
+          <div className="pos__sel-row">
+            {sizes.map((s) => (
+              <span key={s._id} className="pos__size-tag">
+                {s.name}
+              </span>
             ))}
+          </div>
           </div>
 
           <div className="pos__card-qty-area">
@@ -577,7 +582,7 @@ function ConfirmOrderModal({ customerName, cart, paymentMethod, subtotal, total,
                 <p className="pos__cm-item-name">{item.name}</p>
                 <p className="pos__cm-item-var">
                   {item.set}
-                  {item.size && ` · Size: ${item.size}`}
+                  {item.sizes?.length > 0 && ` · Sizes: ${item.sizes.join(', ')}`}
                 </p>
                 <p className="pos__cm-item-price">P {item.price.toLocaleString()}.00</p>
                 <span className="pos__cm-item-qty">{item.qty} {item.qty === 1 ? 'pack' : 'packs'}</span>
