@@ -78,10 +78,10 @@ export default function POS() {
 
         const initSels = {};
         prodData.forEach(p => {
-          // ✅ FIX: p.set and p.size are single populated objects, not arrays
+          // ✅ FIX: p.set and p.size are arrays of populated objects
           initSels[p._id] = {
-            set:  p.set?.name  || '',
-            size: p.size?.name || '',
+            set:  p.set?.[0]?.name  || '',
+            size: p.size?.[0]?.name || '',
             qty:  p.slot || 1,
           };
         });
@@ -129,8 +129,7 @@ export default function POS() {
         price:     product.wholesalePrice,
         set:       sel?.set  || '',
         size:      sel?.size || '',
-        // ✅ FIX: wrap single object in array for sizes list
-        sizes:     product.size ? [product.size.name] : [],
+        sizes:     product.size?.map(s => s.name) || [],
         qty:       sel?.qty  || 1,
       }];
     });
@@ -494,9 +493,9 @@ export default function POS() {
 // ─── ProductCard ──────────────────────────────────────────────────────────────
 
 function ProductCard({ product, sel, onSel, onAdd }) {
-  // ✅ FIX: p.set and p.size are single populated objects, wrap in array for rendering
-  const sets     = product.set  ? [product.set]  : [];
-  const sizes    = product.size ? [product.size] : [];
+  // ✅ FIX: p.set and p.size are arrays of populated objects
+  const sets     = product.set  || [];
+  const sizes    = product.size || [];
   const setRows  = chunk(sets,  4);
   const sizeRows = chunk(sizes, 5);
 
