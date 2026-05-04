@@ -55,12 +55,12 @@ function ConfirmModal({ title, message, onConfirm, onCancel }) {
 const BackupRecovery = () => {
   const navigate = useNavigate();
 
-  const [dragging,    setDragging]    = useState(false);
-  const [file,        setFile]        = useState(null);
-  const [restoring,   setRestoring]   = useState(false);
-  const [downloading, setDownloading] = useState(false);
-  const [alertModal,  setAlertModal]  = useState(null);
-  const [confirmModal,setConfirmModal]= useState(null);
+  const [dragging,     setDragging]     = useState(false);
+  const [file,         setFile]         = useState(null);
+  const [restoring,    setRestoring]    = useState(false);
+  const [downloading,  setDownloading]  = useState(false);
+  const [alertModal,   setAlertModal]   = useState(null);
+  const [confirmModal, setConfirmModal] = useState(null);
   const inputRef = useRef(null);
 
   const showAlert = (type, title, message, btnLabel = 'OK', onClose = null) => {
@@ -74,10 +74,10 @@ const BackupRecovery = () => {
     e.preventDefault();
     setDragging(false);
     const dropped = e.dataTransfer.files[0];
-    if (dropped && dropped.name.endsWith('.gz')) {
+    if (dropped && dropped.name.endsWith('.json')) {
       setFile(dropped);
     } else {
-      showAlert('error', 'Invalid File', 'Please upload a valid .gz backup file.');
+      showAlert('error', 'Invalid File', 'Please upload a valid .json backup file.');
     }
   };
 
@@ -86,13 +86,26 @@ const BackupRecovery = () => {
     if (selected) setFile(selected);
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     setDownloading(true);
-    window.open(`${BACKUP_API}/backup`, '_self');
-    setTimeout(() => {
-      setDownloading(false);
+    try {
+      const res  = await fetch(`${BACKUP_API}/backup`);
+      if (!res.ok) throw new Error('Download failed');
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `backup_${new Date().toISOString().replace(/T/, '_').replace(/:/g, '-').split('.')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
       showAlert('success', 'Backup Downloaded!', 'Your backup has been saved to your Downloads folder.');
-    }, 1000);
+    } catch (err) {
+      showAlert('error', 'Download Failed', 'Could not download the backup. Please try again.');
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const handleRestoreConfirmed = async () => {
@@ -101,7 +114,7 @@ const BackupRecovery = () => {
     try {
       const form = new FormData();
       form.append('backup', file);
-      const res  = await fetch(`${BACKUP_API}/restore`, { method:'POST', body:form });
+      const res  = await fetch(`${BACKUP_API}/restore`, { method: 'POST', body: form });
       const data = await res.json();
       if (res.ok) {
         setFile(null);
@@ -184,7 +197,7 @@ const BackupRecovery = () => {
                         <span style={{ fontWeight:700, fontSize:14 }}>Download Backup</span>
                       </div>
                       <p style={{ fontSize:12, color:'rgba(0,0,0,0.45)', lineHeight:1.6, flex:1 }}>
-                        Export a complete snapshot of the database as a <strong>.gz</strong> file.
+                        Export a complete snapshot of the database as a <strong>.json</strong> file.
                         Each download is timestamped so backups never overwrite each other.
                       </p>
                       <button
@@ -206,7 +219,7 @@ const BackupRecovery = () => {
                         <span style={{ fontWeight:700, fontSize:14 }}>Restore from Backup</span>
                       </div>
                       <p style={{ fontSize:12, color:'rgba(0,0,0,0.45)', lineHeight:1.6 }}>
-                        Upload a <strong>.gz</strong> backup file.{' '}
+                        Upload a <strong>.json</strong> backup file.{' '}
                         <strong style={{ color:'#990214' }}>This will overwrite all current data.</strong>
                       </p>
 
@@ -226,12 +239,12 @@ const BackupRecovery = () => {
                         ) : (
                           <>
                             <p style={{ fontSize:12, color:'rgba(0,0,0,0.45)', marginBottom:4 }}>Drag & drop your backup file here</p>
-                            <p style={{ fontSize:11, color:'rgba(0,0,0,0.3)' }}>or click to select a <strong>.gz</strong> file</p>
+                            <p style={{ fontSize:11, color:'rgba(0,0,0,0.3)' }}>or click to select a <strong>.json</strong> file</p>
                           </>
                         )}
                       </div>
 
-                      <input ref={inputRef} type="file" accept=".gz" style={{ display:'none' }} onChange={handleFileSelect} />
+                      <input ref={inputRef} type="file" accept=".json" style={{ display:'none' }} onChange={handleFileSelect} />
 
                       {/* Actions */}
                       <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
