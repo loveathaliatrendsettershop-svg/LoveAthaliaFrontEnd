@@ -355,11 +355,6 @@ const handleProceedToConfirm = () => {
     return;
   }
 
-  if (form.images.length === 0) {
-    showAlert('warning', 'Required Field', 'At least one Product Image is required.');
-    return;
-  }
-
   setModal('confirm');
 };
   
