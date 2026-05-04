@@ -2,8 +2,6 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import Topbar from '../../Components/notif/Topbar';
 import './Product.css';
 
-// ─── Constants ───────────────────────────────────────────────────────────────
-
 const PRICE_PRESETS = [
   { label: '100-300',  min: 100,  max: 300  },
   { label: '300-600',  min: 300,  max: 600  },
@@ -20,7 +18,7 @@ const BLANK_FORM = {
   code: '', name: '', description: '',
   sizes: [], sets: [],
   sellingPrice: '', retailPrice: '',
-  minSlot: '', packQty: '', piecesPerPack: '',
+  minSlot: '', packQty: '',
   stockQty: '',
   category: '',
   images: [],
@@ -29,14 +27,10 @@ const BLANK_FORM = {
 
 const API_BASE = `${import.meta.env.VITE_API_URL}`;
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
 const toggleArr = (arr, val) =>
   arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val];
 
 const imgUrl = (img) => (typeof img === 'string' ? img : img?.url ?? null);
-
-// ─── Alert Modal ──────────────────────────────────────────────────────────────
 
 const ALERT_META = {
   success: { icon: 'check',   iconColor: '#3DB82B', circleBg: 'rgba(112,233,90,0.15)', circleBorder: 'rgba(112,233,90,0.45)', btnBg: '#3DB82B' },
@@ -50,50 +44,30 @@ function AlertModal({ type, title, message, btnLabel = 'OK', onClose }) {
   return (
     <div className="pmodal__overlay" style={{ zIndex: 9999 }}>
       <div className="pmodal__delete-box scale-in">
-        <div
-          style={{
-            width: 72, height: 72, borderRadius: '50%',
-            background: meta.circleBg, border: `2px solid ${meta.circleBorder}`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 12px',
-          }}
-        >
-          <span className="material-icons" style={{ fontSize: 36, color: meta.iconColor }}>
-            {meta.icon}
-          </span>
+        <div style={{ width: 72, height: 72, borderRadius: '50%', background: meta.circleBg, border: `2px solid ${meta.circleBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+          <span className="material-icons" style={{ fontSize: 36, color: meta.iconColor }}>{meta.icon}</span>
         </div>
         <h2 className="pmodal__delete-title">{title}</h2>
         <p className="pmodal__delete-msg">{message}</p>
         <div className="pmodal__delete-actions" style={{ justifyContent: 'center' }}>
-          <button
-            className="pmodal__submit-btn"
-            style={{ background: meta.btnBg }}
-            onClick={onClose}
-          >
-            {btnLabel}
-          </button>
+          <button className="pmodal__submit-btn" style={{ background: meta.btnBg }} onClick={onClose}>{btnLabel}</button>
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
-
 export default function Product() {
-  // ── List state ──
   const [products,       setProducts]       = useState([]);
   const [loading,        setLoading]        = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery,    setSearchQuery]    = useState('');
   const [lowStockQty,    setLowStockQty]    = useState(10);
 
-  // ── Meta from DB ──
   const [availableSizes,      setAvailableSizes]      = useState([]);
   const [availableSets,       setAvailableSets]       = useState([]);
   const [availableCategories, setAvailableCategories] = useState([]);
 
-  // ── Filter state ──
   const [filterOpen,       setFilterOpen]       = useState(false);
   const [filterSizes,      setFilterSizes]      = useState([]);
   const [filterCategories, setFilterCategories] = useState([]);
@@ -105,30 +79,23 @@ export default function Product() {
   const filterRef   = useRef(null);
   const statusThRef = useRef(null);
 
-  // ── Modal state ──
   const [modal,      setModal]      = useState(null);
   const [form,       setForm]       = useState(BLANK_FORM);
   const [editId,     setEditId]     = useState(null);
-  const [deleteId,   setDeleteId]   = useState(null);
   const [hoveredImg, setHoveredImg] = useState(false);
 
-  // ── Upload state ──
   const [uploadError, setUploadError] = useState('');
-
-  // ── Alert state ──
-  const [alertModal, setAlertModal] = useState(null);
+  const [alertModal,  setAlertModal]  = useState(null);
 
   const showAlert = (type, title, message, btnLabel = 'OK', onClose = null) => {
     setAlertModal({ type, title, message, btnLabel, onClose: onClose ?? (() => setAlertModal(null)) });
   };
 
-  // ─── Stock status ─────────────────────────────────────────────────────────
   const stockStatus = (qty, threshold = lowStockQty) => {
     const n = Number(qty) || 0;
     return n <= 0 ? 'out' : n <= threshold ? 'low' : 'in';
   };
 
-  // ─── Init ─────────────────────────────────────────────────────────────────
   useEffect(() => {
     const init = async () => {
       try {
@@ -166,7 +133,6 @@ export default function Product() {
     init();
   }, []);
 
-  // ─── Refresh products ─────────────────────────────────────────────────────
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -184,7 +150,6 @@ export default function Product() {
     }
   };
 
-  // ─── Close dropdowns on outside click ────────────────────────────────────
   useEffect(() => {
     const handler = (e) => {
       if (filterRef.current   && !filterRef.current.contains(e.target))   setFilterOpen(false);
@@ -194,13 +159,11 @@ export default function Product() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // ─── Category tabs ────────────────────────────────────────────────────────
   const categoryTabs = useMemo(() => {
     const names = availableCategories.map(c => c.name ?? c);
     return ['All', ...names];
   }, [availableCategories]);
 
-  // ─── Filtered list ────────────────────────────────────────────────────────
   const hasActiveFilters = filterSizes.length > 0 || filterCategories.length > 0
     || priceMin || priceMax || pricePreset || statusFilter !== 'all';
 
@@ -221,7 +184,6 @@ export default function Product() {
     });
   }, [products, activeCategory, searchQuery, filterSizes, filterCategories, priceMin, priceMax, statusFilter]);
 
-  // ─── Filter helpers ───────────────────────────────────────────────────────
   const toggleFilterSize = (id) =>
     setFilterSizes(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
@@ -243,7 +205,6 @@ export default function Product() {
     setStatusFilter('all');
   };
 
-  // ─── Image upload ─────────────────────────────────────────────────────────
   const handleImgUpload = (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
@@ -261,26 +222,24 @@ export default function Product() {
     });
   };
 
-  // ─── Modal helpers ────────────────────────────────────────────────────────
   const openAdd = () => { setForm(BLANK_FORM); setEditId(null); setUploadError(''); setModal('add'); };
 
   const openEdit = (product) => {
     setEditId(product._id ?? product.id);
     setUploadError('');
     setForm({
-      code:          product.productCode        ?? product.code ?? '',
-      name:          product.name               ?? '',
-      description:   product.productDescription ?? product.description ?? '',
-      sizes:         (product.size ?? []).map(s => String(s?._id ?? s)),
-      sets:          (product.set  ?? []).map(s => String(s?._id ?? s)),
-      sellingPrice:  product.wholesalePrice  ?? '',
-      retailPrice:   product.retailPrice     ?? '',
-      minSlot:       product.slot            ?? '',
-      packQty:       product.quantityPerPack ?? '',
-      piecesPerPack: product.quantityPerPack ?? '',
-      stockQty:      product.stock           ?? '',
-      category:      product.category        ?? '',
-      images:        (product.images ?? []).map(u =>
+      code:         product.productCode        ?? product.code ?? '',
+      name:         product.name               ?? '',
+      description:  product.productDescription ?? product.description ?? '',
+      sizes:        (product.size ?? []).map(s => String(s?._id ?? s)),
+      sets:         (product.set  ?? []).map(s => String(s?._id ?? s)),
+      sellingPrice: product.wholesalePrice  ?? '',
+      retailPrice:  product.retailPrice     ?? '',
+      minSlot:      product.slot            ?? '',
+      packQty:      product.quantityPerPack ?? '',
+      stockQty:     product.stock           ?? '',
+      category:     product.category        ?? '',
+      images:       (product.images ?? []).map(u =>
         typeof u === 'string' ? { url: u, uploading: false } : u
       ),
       mainImageIdx: 0,
@@ -288,78 +247,47 @@ export default function Product() {
     setModal('edit');
   };
 
-  const closeAll = () => { setModal(null); setEditId(null); setDeleteId(null); setUploadError(''); };
+  const closeAll = () => { setModal(null); setEditId(null); setUploadError(''); };
 
- // ─── Validate and proceed to confirm ─────────────────────────────────────
-const isEmpty = (v) => v === null || v === undefined || String(v).trim() === '';
+  const isEmpty = (v) => v === null || v === undefined || String(v).trim() === '';
 
-const handleProceedToConfirm = () => {
+  const handleProceedToConfirm = () => {
+    if (isEmpty(form.code)) {
+      showAlert('warning', 'Required Field', 'Product Code is required.'); return;
+    }
+    if (isEmpty(form.name)) {
+      showAlert('warning', 'Required Field', 'Product Name is required.'); return;
+    }
+    if (isEmpty(form.description)) {
+      showAlert('warning', 'Required Field', 'Product Description is required.'); return;
+    }
+    if (form.sizes.length === 0) {
+      showAlert('warning', 'Required Field', 'Please select at least one Size.'); return;
+    }
+    if (form.sets.length === 0) {
+      showAlert('warning', 'Required Field', 'Please select at least one Set.'); return;
+    }
+    if (isEmpty(form.minSlot)) {
+      showAlert('warning', 'Required Field', 'Slot Availability is required.'); return;
+    }
+    if (isEmpty(form.packQty)) {
+      showAlert('warning', 'Required Field', 'Packs per Slot is required.'); return;
+    }
+    if (isEmpty(form.sellingPrice) || Number(form.sellingPrice) <= 0) {
+      showAlert('warning', 'Required Field', 'Selling Price must be greater than 0.'); return;
+    }
+    if (isEmpty(form.retailPrice) || Number(form.retailPrice) <= 0) {
+      showAlert('warning', 'Required Field', 'Retail Price must be greater than 0.'); return;
+    }
+    if (isEmpty(form.category)) {
+      showAlert('warning', 'Required Field', 'Product Category is required.'); return;
+    }
+    if (isEmpty(form.stockQty)) {
+      showAlert('warning', 'Required Field', 'Stock Quantity is required.'); return;
+    }
+    setModal('confirm');
+  };
 
-  if (isEmpty(form.code)) {
-    showAlert('warning', 'Required Field', 'Product Code is required.');
-    return;
-  }
-
-  if (isEmpty(form.name)) {
-    showAlert('warning', 'Required Field', 'Product Name is required.');
-    return;
-  }
-
-  if (isEmpty(form.description)) {
-    showAlert('warning', 'Required Field', 'Product Description is required.');
-    return;
-  }
-
-  if (form.sizes.length === 0) {
-    showAlert('warning', 'Required Field', 'Please select at least one Size.');
-    return;
-  }
-
-  if (form.sets.length === 0) {
-    showAlert('warning', 'Required Field', 'Please select at least one Set.');
-    return;
-  }
-
-  if (isEmpty(form.minSlot)) {
-    showAlert('warning', 'Required Field', 'Minimum Slot Availability is required.');
-    return;
-  }
-
-  if (isEmpty(form.packQty)) {
-    showAlert('warning', 'Required Field', 'Quantity per Slot (Pack) is required.');
-    return;
-  }
-
-  if (isEmpty(form.piecesPerPack)) {
-    showAlert('warning', 'Required Field', 'Pieces per Pack is required.');
-    return;
-  }
-
-  if (isEmpty(form.sellingPrice) || Number(form.sellingPrice) <= 0) {
-    showAlert('warning', 'Required Field', 'Selling Price must be greater than 0.');
-    return;
-  }
-
-  if (isEmpty(form.retailPrice) || Number(form.retailPrice) <= 0) {
-    showAlert('warning', 'Required Field', 'Retail Price must be greater than 0.');
-    return;
-  }
-
-  if (isEmpty(form.category)) {
-    showAlert('warning', 'Required Field', 'Product Category is required.');
-    return;
-  }
-
-  if (isEmpty(form.stockQty)) {
-    showAlert('warning', 'Required Field', 'Stock Quantity is required.');
-    return;
-  }
-
-  setModal('confirm');
-};
-  
-
-  // ─── Upload images then save ──────────────────────────────────────────────
   const uploadImagesToServer = async () => {
     const existingUrls  = form.images.filter(img => !img.file).map(img => img.url);
     const filesToUpload = form.images.filter(img => img.file).map(img => img.file);
@@ -386,12 +314,12 @@ const handleProceedToConfirm = () => {
         productDescription: form.description,
         size:               form.sizes,
         set:                form.sets,
-        slot:               Number(form.minSlot)       || 0,
-        quantityPerPack:    Number(form.piecesPerPack) || 0,
-        wholesalePrice:     Number(form.sellingPrice)  || 0,
-        retailPrice:        Number(form.retailPrice)   || 0,
+        slot:               Number(form.minSlot)  || 0,
+        quantityPerPack:    Number(form.packQty)  || 0,
+        wholesalePrice:     Number(form.sellingPrice) || 0,
+        retailPrice:        Number(form.retailPrice)  || 0,
         category:           form.category,
-        stock:              Number(form.stockQty)      || 0,
+        stock:              Number(form.stockQty) || 0,
       };
 
       const url    = editId ? `${API_BASE}/api/products/${editId}` : `${API_BASE}/api/products`;
@@ -406,7 +334,6 @@ const handleProceedToConfirm = () => {
       if (!res.ok) {
         const err = await res.json();
         const serverMsg = err.message ?? '';
-
         if (serverMsg.includes('E11000') && serverMsg.includes('productCode')) {
           showAlert('error', 'Duplicate Product Code', `The product code "${form.code}" is already in use. Please use a different code.`);
         } else if (serverMsg.includes('E11000')) {
@@ -447,7 +374,6 @@ const handleProceedToConfirm = () => {
     }
   };
 
-  // ─── Toggle active/inactive ───────────────────────────────────────────────
   const handleToggleStatus = async (id, currentIsActive) => {
     try {
       const res = await fetch(`${API_BASE}/api/products/${id}/toggle`, { method: 'PATCH' });
@@ -472,11 +398,9 @@ const handleProceedToConfirm = () => {
     }
   };
 
-  // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="product-page">
 
-      {/* ── Alert Modal ── */}
       {alertModal && (
         <AlertModal
           type={alertModal.type}
@@ -487,7 +411,6 @@ const handleProceedToConfirm = () => {
         />
       )}
 
-      {/* ── Header ── */}
       <div className="product-page__header">
         <div className="product-page__title-block">
           <h1 className="product-page__title">PRODUCT</h1>
@@ -496,7 +419,6 @@ const handleProceedToConfirm = () => {
         <Topbar />
       </div>
 
-      {/* ── Toolbar ── */}
       <div className="product-page__toolbar">
         <div className="product-page__cat-bar">
           {categoryTabs.map((cat) => (
@@ -596,7 +518,6 @@ const handleProceedToConfirm = () => {
         </div>
       </div>
 
-      {/* ── Table card ── */}
       <div className="product-page__card">
         <div className="product-page__card-top-row">
           <p className="product-page__count">
@@ -628,8 +549,8 @@ const handleProceedToConfirm = () => {
                 <th>Product img</th>
                 <th>Product Name</th>
                 <th>Size</th>
-                <th>Pack</th>
-                <th>Pcs</th>
+                <th>Packs/Slot</th>
+                <th>Stock</th>
                 <th>Unit Price</th>
                 <th>Price Per Pack</th>
                 <th
@@ -709,8 +630,8 @@ const handleProceedToConfirm = () => {
                       </td>
                       <td className="product-page__td">{p.name}</td>
                       <td className="product-page__td">{sizeLabels || '—'}</td>
-                      <td className="product-page__td">{p.quantityPerPack ?? p.pack}</td>
-                      <td className="product-page__td">{p.stock ?? p.pcs}</td>
+                      <td className="product-page__td">{p.quantityPerPack ?? '—'}</td>
+                      <td className="product-page__td">{p.stock ?? 0}</td>
                       <td className="product-page__td">₱ {(p.retailPrice ?? 0).toLocaleString()}</td>
                       <td className="product-page__td">₱ {(p.wholesalePrice ?? p.pricePerPack ?? 0).toLocaleString()}</td>
                       <td className="product-page__td" onClick={e => e.stopPropagation()}>
@@ -731,9 +652,7 @@ const handleProceedToConfirm = () => {
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════════════
-          ADD / EDIT MODAL
-      ══════════════════════════════════════════════════ */}
+      {/* ADD / EDIT MODAL */}
       {(modal === 'add' || modal === 'edit') && (
         <div className="pmodal__overlay">
           <div className="pmodal__box scale-in">
@@ -760,7 +679,6 @@ const handleProceedToConfirm = () => {
                     <textarea className="pmodal__textarea" placeholder="Item Description"
                       value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} />
                   </div>
-
                   <div className="pmodal__field">
                     <label className="pmodal__field-label">Size: <span className="pmodal__required">*</span></label>
                     <p className="pmodal__pick-hint">Pick Available Size</p>
@@ -769,16 +687,13 @@ const handleProceedToConfirm = () => {
                         ? <span style={{ fontSize: 11, color: '#aaa' }}>Loading sizes…</span>
                         : availableSizes.map((s) => (
                           <button key={s._id} type="button"
-                            className={`pmodal__chip pmodal__chip--size ${
-                              form.sizes.includes(String(s._id)) ? 'pmodal__chip--active' : ''
-                            }`}
+                            className={`pmodal__chip pmodal__chip--size ${form.sizes.includes(String(s._id)) ? 'pmodal__chip--active' : ''}`}
                             onClick={() => setForm(f => ({ ...f, sizes: toggleArr(f.sizes, String(s._id)) }))}
                           >{s.name}</button>
                         ))
                       }
                     </div>
                   </div>
-
                   <div className="pmodal__field">
                     <label className="pmodal__field-label">Set: <span className="pmodal__required">*</span></label>
                     <p className="pmodal__pick-hint">Pick Available Set</p>
@@ -787,9 +702,7 @@ const handleProceedToConfirm = () => {
                         ? <span style={{ fontSize: 11, color: '#aaa' }}>Loading sets…</span>
                         : availableSets.map((s) => (
                           <button key={s._id} type="button"
-                            className={`pmodal__chip pmodal__chip--set ${
-                              form.sets.includes(String(s._id)) ? 'pmodal__chip--active' : ''
-                            }`}
+                            className={`pmodal__chip pmodal__chip--set ${form.sets.includes(String(s._id)) ? 'pmodal__chip--active' : ''}`}
                             onClick={() => setForm(f => ({ ...f, sets: toggleArr(f.sets, String(s._id)) }))}
                           >{s.name}</button>
                         ))
@@ -802,18 +715,14 @@ const handleProceedToConfirm = () => {
                   <h3 className="pmodal__section-label pmodal__section-label--inline">Pricing</h3>
                   <div className="pmodal__pricing-card">
                     <div className="pmodal__sub-field">
-                      <label className="pmodal__sub-label">Minimum Slot Availability:</label>
-                      <input className="pmodal__sub-input" placeholder="Minimum Slot per order"
+                      <label className="pmodal__sub-label">Slot Availability: <span className="pmodal__required">*</span></label>
+                      <input className="pmodal__sub-input" placeholder="How many people can avail"
                         value={form.minSlot} onChange={(e) => setForm(f => ({ ...f, minSlot: e.target.value }))} />
                     </div>
                     <div className="pmodal__sub-field">
-                      <label className="pmodal__sub-label">Quantity per slot:</label>
-                      <div className="pmodal__pricing-inline">
-                        <input className="pmodal__sub-input pmodal__sub-input--xs" placeholder="pack"
-                          value={form.packQty} onChange={(e) => setForm(f => ({ ...f, packQty: e.target.value }))} />
-                        <input className="pmodal__sub-input pmodal__sub-input--md" placeholder="pieces per pack"
-                          value={form.piecesPerPack} onChange={(e) => setForm(f => ({ ...f, piecesPerPack: e.target.value }))} />
-                      </div>
+                      <label className="pmodal__sub-label">Packs per Slot: <span className="pmodal__required">*</span></label>
+                      <input className="pmodal__sub-input" placeholder="How many packs per slot"
+                        value={form.packQty} onChange={(e) => setForm(f => ({ ...f, packQty: e.target.value }))} />
                     </div>
                     <div className="pmodal__price-fields">
                       <div className="pmodal__sub-field">
@@ -912,7 +821,7 @@ const handleProceedToConfirm = () => {
 
                 <h3 className="pmodal__section-label pmodal__section-label--mt">Inventory</h3>
                 <div className="pmodal__inv-card">
-                  <label className="pmodal__sub-label">Stock Quantity:</label>
+                  <label className="pmodal__sub-label">Stock Quantity: <span className="pmodal__required">*</span></label>
                   <input className="pmodal__inv-input" placeholder="Stock by Pack"
                     value={form.stockQty} onChange={(e) => setForm(f => ({ ...f, stockQty: e.target.value }))} />
                 </div>
@@ -936,7 +845,6 @@ const handleProceedToConfirm = () => {
                   {products.find(p => (p._id ?? p.id) === editId)?.isActive === false ? 'Set Active' : 'Set Inactive'}
                 </button>
               )}
-              {/* ── CHANGED: onClick now calls handleProceedToConfirm instead of setModal('confirm') directly ── */}
               <button className="pmodal__submit-btn" onClick={handleProceedToConfirm}>
                 {modal === 'edit' ? 'Save Changes' : 'Add Product'}
               </button>
@@ -945,9 +853,7 @@ const handleProceedToConfirm = () => {
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════
-          CONFIRM MODAL
-      ══════════════════════════════════════════════════ */}
+      {/* CONFIRM MODAL */}
       {modal === 'confirm' && (
         <div className="pmodal__overlay">
           <div className="pmodal__box scale-in">
@@ -964,9 +870,7 @@ const handleProceedToConfirm = () => {
                     <label className="pmodal__field-label">Size:</label>
                     <div className="pmodal__chip-row">
                       {availableSizes.map((s) => (
-                        <span key={s._id} className={`pmodal__chip pmodal__chip--size ${
-                          form.sizes.includes(String(s._id)) ? 'pmodal__chip--active' : ''
-                        }`}>{s.name}</span>
+                        <span key={s._id} className={`pmodal__chip pmodal__chip--size ${form.sizes.includes(String(s._id)) ? 'pmodal__chip--active' : ''}`}>{s.name}</span>
                       ))}
                     </div>
                   </div>
@@ -974,9 +878,7 @@ const handleProceedToConfirm = () => {
                     <label className="pmodal__field-label">Set:</label>
                     <div className="pmodal__chip-row">
                       {availableSets.map((s) => (
-                        <span key={s._id} className={`pmodal__chip pmodal__chip--set ${
-                          form.sets.includes(String(s._id)) ? 'pmodal__chip--active' : ''
-                        }`}>{s.name}</span>
+                        <span key={s._id} className={`pmodal__chip pmodal__chip--set ${form.sets.includes(String(s._id)) ? 'pmodal__chip--active' : ''}`}>{s.name}</span>
                       ))}
                     </div>
                   </div>
@@ -984,9 +886,8 @@ const handleProceedToConfirm = () => {
                 <div className="pmodal__pricing-row">
                   <h3 className="pmodal__section-label pmodal__section-label--inline">Pricing</h3>
                   <div className="pmodal__pricing-card pmodal__pricing-card--readonly">
-                    <div className="pmodal__price-readonly-row"><span className="pmodal__sub-label">Min Slot:</span><span>{form.minSlot || '—'}</span></div>
-                    <div className="pmodal__price-readonly-row"><span className="pmodal__sub-label">Pack Qty:</span><span>{form.packQty || '—'}</span></div>
-                    <div className="pmodal__price-readonly-row"><span className="pmodal__sub-label">Pcs / pack:</span><span>{form.piecesPerPack || '—'}</span></div>
+                    <div className="pmodal__price-readonly-row"><span className="pmodal__sub-label">Slot Availability:</span><span>{form.minSlot || '—'}</span></div>
+                    <div className="pmodal__price-readonly-row"><span className="pmodal__sub-label">Packs per Slot:</span><span>{form.packQty || '—'}</span></div>
                     <div className="pmodal__price-readonly-row"><span className="pmodal__sub-label">Selling Price:</span><span>₱ {form.sellingPrice || '—'}</span></div>
                     <div className="pmodal__price-readonly-row"><span className="pmodal__sub-label">Retail Price:</span><span>₱ {form.retailPrice || '—'}</span></div>
                   </div>
@@ -1034,9 +935,7 @@ const handleProceedToConfirm = () => {
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════
-          TOGGLE CONFIRM MODAL
-      ══════════════════════════════════════════════════ */}
+      {/* TOGGLE CONFIRM MODAL */}
       {modal === 'toggleConfirm' && (() => {
         const currentProduct    = products.find(p => (p._id ?? p.id) === editId);
         const isCurrentlyActive = currentProduct?.isActive !== false;
