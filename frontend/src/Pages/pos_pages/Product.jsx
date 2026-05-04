@@ -290,34 +290,79 @@ export default function Product() {
 
   const closeAll = () => { setModal(null); setEditId(null); setDeleteId(null); setUploadError(''); };
 
-  // ─── Validate and proceed to confirm ─────────────────────────────────────
-  const handleProceedToConfirm = () => {
-    if (!form.code.trim()) {
-      showAlert('warning', 'Incomplete Form', 'Please enter the Product Code.'); return;
-    }
-    if (!form.name.trim()) {
-      showAlert('warning', 'Incomplete Form', 'Please enter the Product Name.'); return;
-    }
-    if (!form.description.trim()) {
-      showAlert('warning', 'Incomplete Form', 'Please enter the Product Description.'); return;
-    }
-    if (form.sizes.length === 0) {
-      showAlert('warning', 'Incomplete Form', 'Please select at least one Size.'); return;
-    }
-    if (form.sets.length === 0) {
-      showAlert('warning', 'Incomplete Form', 'Please select at least one Set.'); return;
-    }
-    if (!form.sellingPrice) {
-      showAlert('warning', 'Incomplete Form', 'Please enter the Selling Price.'); return;
-    }
-    if (!form.retailPrice) {
-      showAlert('warning', 'Incomplete Form', 'Please enter the Retail Price.'); return;
-    }
-    if (!form.category) {
-      showAlert('warning', 'Incomplete Form', 'Please select a Product Category.'); return;
-    }
-    setModal('confirm');
-  };
+ // ─── Validate and proceed to confirm ─────────────────────────────────────
+const isEmpty = (v) => v === null || v === undefined || String(v).trim() === '';
+
+const handleProceedToConfirm = () => {
+
+  if (isEmpty(form.code)) {
+    showAlert('warning', 'Required Field', 'Product Code is required.');
+    return;
+  }
+
+  if (isEmpty(form.name)) {
+    showAlert('warning', 'Required Field', 'Product Name is required.');
+    return;
+  }
+
+  if (isEmpty(form.description)) {
+    showAlert('warning', 'Required Field', 'Product Description is required.');
+    return;
+  }
+
+  if (form.sizes.length === 0) {
+    showAlert('warning', 'Required Field', 'Please select at least one Size.');
+    return;
+  }
+
+  if (form.sets.length === 0) {
+    showAlert('warning', 'Required Field', 'Please select at least one Set.');
+    return;
+  }
+
+  if (isEmpty(form.minSlot)) {
+    showAlert('warning', 'Required Field', 'Minimum Slot Availability is required.');
+    return;
+  }
+
+  if (isEmpty(form.packQty)) {
+    showAlert('warning', 'Required Field', 'Quantity per Slot (Pack) is required.');
+    return;
+  }
+
+  if (isEmpty(form.piecesPerPack)) {
+    showAlert('warning', 'Required Field', 'Pieces per Pack is required.');
+    return;
+  }
+
+  if (isEmpty(form.sellingPrice) || Number(form.sellingPrice) <= 0) {
+    showAlert('warning', 'Required Field', 'Selling Price must be greater than 0.');
+    return;
+  }
+
+  if (isEmpty(form.retailPrice) || Number(form.retailPrice) <= 0) {
+    showAlert('warning', 'Required Field', 'Retail Price must be greater than 0.');
+    return;
+  }
+
+  if (isEmpty(form.category)) {
+    showAlert('warning', 'Required Field', 'Product Category is required.');
+    return;
+  }
+
+  if (isEmpty(form.stockQty)) {
+    showAlert('warning', 'Required Field', 'Stock Quantity is required.');
+    return;
+  }
+
+  if (form.images.length === 0) {
+    showAlert('warning', 'Required Field', 'At least one Product Image is required.');
+    return;
+  }
+
+  setModal('confirm');
+};
+  
 
   // ─── Upload images then save ──────────────────────────────────────────────
   const uploadImagesToServer = async () => {
