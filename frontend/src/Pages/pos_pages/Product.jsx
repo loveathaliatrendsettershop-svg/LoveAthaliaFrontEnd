@@ -316,6 +316,12 @@ export default function Product() {
     if (!form.category) {
       showAlert('warning', 'Incomplete Form', 'Please select a Product Category.'); return;
     }
+    if (form.stockQty === '' || form.stockQty === null || form.stockQty === undefined) {
+      showAlert('warning', 'Incomplete Form', 'Please enter the Stock Quantity.'); return;
+    }
+    if (Number(form.stockQty) < 0) {
+      showAlert('warning', 'Invalid Input', 'Stock Quantity cannot be negative.'); return;
+    }
     setModal('confirm');
   };
 
@@ -872,7 +878,7 @@ export default function Product() {
 
                 <h3 className="pmodal__section-label pmodal__section-label--mt">Inventory</h3>
                 <div className="pmodal__inv-card">
-                  <label className="pmodal__sub-label">Stock Quantity:</label>
+                  <label className="pmodal__sub-label">Stock Quantity: <span className="pmodal__required">*</span></label>
                   <input className="pmodal__inv-input" placeholder="Stock by Pack"
                     value={form.stockQty} onChange={(e) => setForm(f => ({ ...f, stockQty: e.target.value }))} />
                 </div>
@@ -896,7 +902,6 @@ export default function Product() {
                   {products.find(p => (p._id ?? p.id) === editId)?.isActive === false ? 'Set Active' : 'Set Inactive'}
                 </button>
               )}
-              {/* ── CHANGED: onClick now calls handleProceedToConfirm instead of setModal('confirm') directly ── */}
               <button className="pmodal__submit-btn" onClick={handleProceedToConfirm}>
                 {modal === 'edit' ? 'Save Changes' : 'Add Product'}
               </button>
