@@ -36,7 +36,7 @@ const toggleArr = (arr, val) =>
 
 const imgUrl = (img) => (typeof img === 'string' ? img : img?.url ?? null);
 
-// ─── Alert Modal (same pattern as Login.jsx) ──────────────────────────────────
+// ─── Alert Modal ──────────────────────────────────────────────────────────────
 
 const ALERT_META = {
   success: { icon: 'check',   iconColor: '#3DB82B', circleBg: 'rgba(112,233,90,0.15)', circleBorder: 'rgba(112,233,90,0.45)', btnBg: '#3DB82B' },
@@ -264,6 +264,7 @@ export default function Product() {
   // ─── Modal helpers ────────────────────────────────────────────────────────
   const openAdd = () => { setForm(BLANK_FORM); setEditId(null); setUploadError(''); setModal('add'); };
 
+  // ── FIX: All _id values converted to plain strings so includes() works correctly ──
   const openEdit = (product) => {
     setEditId(product._id ?? product.id);
     setUploadError('');
@@ -271,8 +272,8 @@ export default function Product() {
       code:          product.productCode        ?? product.code ?? '',
       name:          product.name               ?? '',
       description:   product.productDescription ?? product.description ?? '',
-      sizes:         (product.size ?? []).map(s => s?._id ?? String(s)),
-      sets:          (product.set  ?? []).map(s => s?._id ?? String(s)),
+      sizes:         (product.size ?? []).map(s => String(s?._id ?? s)),  // ← FIXED
+      sets:          (product.set  ?? []).map(s => String(s?._id ?? s)),  // ← FIXED
       sellingPrice:  product.wholesalePrice  ?? '',
       retailPrice:   product.retailPrice     ?? '',
       minSlot:       product.slot            ?? '',
@@ -359,7 +360,6 @@ export default function Product() {
         setProducts((prev) => [...prev, normalized]);
       }
 
-      // ── Replace old success modal with AlertModal ──
       closeAll();
       showAlert(
         'success',
@@ -390,7 +390,6 @@ export default function Product() {
           ? { ...p, isActive: product.isActive, status: stockStatus(product.stock) }
           : p
       ));
-      // ── Replace old success modal with AlertModal ──
       closeAll();
       showAlert(
         'warning',
@@ -699,6 +698,8 @@ export default function Product() {
                     <textarea className="pmodal__textarea" placeholder="Item Description"
                       value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} />
                   </div>
+
+                  {/* ── SIZE CHIPS — FIX: String(s._id) for both includes() and toggleArr() ── */}
                   <div className="pmodal__field">
                     <label className="pmodal__field-label">Size: <span className="pmodal__required">*</span></label>
                     <p className="pmodal__pick-hint">Pick Available Size</p>
@@ -707,13 +708,17 @@ export default function Product() {
                         ? <span style={{ fontSize: 11, color: '#aaa' }}>Loading sizes…</span>
                         : availableSizes.map((s) => (
                           <button key={s._id} type="button"
-                            className={`pmodal__chip pmodal__chip--size ${form.sizes.includes(s._id) ? 'pmodal__chip--active' : ''}`}
-                            onClick={() => setForm(f => ({ ...f, sizes: toggleArr(f.sizes, s._id) }))}
+                            className={`pmodal__chip pmodal__chip--size ${
+                              form.sizes.includes(String(s._id)) ? 'pmodal__chip--active' : ''
+                            }`}
+                            onClick={() => setForm(f => ({ ...f, sizes: toggleArr(f.sizes, String(s._id)) }))}
                           >{s.name}</button>
                         ))
                       }
                     </div>
                   </div>
+
+                  {/* ── SET CHIPS — FIX: String(s._id) for both includes() and toggleArr() ── */}
                   <div className="pmodal__field">
                     <label className="pmodal__field-label">Set: <span className="pmodal__required">*</span></label>
                     <p className="pmodal__pick-hint">Pick Available Set</p>
@@ -722,8 +727,10 @@ export default function Product() {
                         ? <span style={{ fontSize: 11, color: '#aaa' }}>Loading sets…</span>
                         : availableSets.map((s) => (
                           <button key={s._id} type="button"
-                            className={`pmodal__chip pmodal__chip--set ${form.sets.includes(s._id) ? 'pmodal__chip--active' : ''}`}
-                            onClick={() => setForm(f => ({ ...f, sets: toggleArr(f.sets, s._id) }))}
+                            className={`pmodal__chip pmodal__chip--set ${
+                              form.sets.includes(String(s._id)) ? 'pmodal__chip--active' : ''
+                            }`}
+                            onClick={() => setForm(f => ({ ...f, sets: toggleArr(f.sets, String(s._id)) }))}
                           >{s.name}</button>
                         ))
                       }
@@ -892,19 +899,27 @@ export default function Product() {
                   <div className="pmodal__field"><label className="pmodal__field-label">Product Code:</label><div className="pmodal__readonly-val">{form.code || '—'}</div></div>
                   <div className="pmodal__field"><label className="pmodal__field-label">Product Name:</label><div className="pmodal__readonly-val">{form.name || '—'}</div></div>
                   <div className="pmodal__field"><label className="pmodal__field-label">Description:</label><div className="pmodal__readonly-val pmodal__readonly-val--tall">{form.description || '—'}</div></div>
+
+                  {/* ── CONFIRM SIZE CHIPS — FIX: String(s._id) ── */}
                   <div className="pmodal__field">
                     <label className="pmodal__field-label">Size:</label>
                     <div className="pmodal__chip-row">
                       {availableSizes.map((s) => (
-                        <span key={s._id} className={`pmodal__chip pmodal__chip--size ${form.sizes.includes(s._id) ? 'pmodal__chip--active' : ''}`}>{s.name}</span>
+                        <span key={s._id} className={`pmodal__chip pmodal__chip--size ${
+                          form.sizes.includes(String(s._id)) ? 'pmodal__chip--active' : ''
+                        }`}>{s.name}</span>
                       ))}
                     </div>
                   </div>
+
+                  {/* ── CONFIRM SET CHIPS — FIX: String(s._id) ── */}
                   <div className="pmodal__field">
                     <label className="pmodal__field-label">Set:</label>
                     <div className="pmodal__chip-row">
                       {availableSets.map((s) => (
-                        <span key={s._id} className={`pmodal__chip pmodal__chip--set ${form.sets.includes(s._id) ? 'pmodal__chip--active' : ''}`}>{s.name}</span>
+                        <span key={s._id} className={`pmodal__chip pmodal__chip--set ${
+                          form.sets.includes(String(s._id)) ? 'pmodal__chip--active' : ''
+                        }`}>{s.name}</span>
                       ))}
                     </div>
                   </div>
