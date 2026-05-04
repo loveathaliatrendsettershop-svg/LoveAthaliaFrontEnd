@@ -264,7 +264,6 @@ export default function Product() {
   // ─── Modal helpers ────────────────────────────────────────────────────────
   const openAdd = () => { setForm(BLANK_FORM); setEditId(null); setUploadError(''); setModal('add'); };
 
-  // ── FIX: All _id values converted to plain strings so includes() works correctly ──
   const openEdit = (product) => {
     setEditId(product._id ?? product.id);
     setUploadError('');
@@ -272,8 +271,8 @@ export default function Product() {
       code:          product.productCode        ?? product.code ?? '',
       name:          product.name               ?? '',
       description:   product.productDescription ?? product.description ?? '',
-      sizes:         (product.size ?? []).map(s => String(s?._id ?? s)),  // ← FIXED
-      sets:          (product.set  ?? []).map(s => String(s?._id ?? s)),  // ← FIXED
+      sizes:         (product.size ?? []).map(s => String(s?._id ?? s)),
+      sets:          (product.set  ?? []).map(s => String(s?._id ?? s)),
       sellingPrice:  product.wholesalePrice  ?? '',
       retailPrice:   product.retailPrice     ?? '',
       minSlot:       product.slot            ?? '',
@@ -290,6 +289,35 @@ export default function Product() {
   };
 
   const closeAll = () => { setModal(null); setEditId(null); setDeleteId(null); setUploadError(''); };
+
+  // ─── Validate and proceed to confirm ─────────────────────────────────────
+  const handleProceedToConfirm = () => {
+    if (!form.code.trim()) {
+      showAlert('warning', 'Incomplete Form', 'Please enter the Product Code.'); return;
+    }
+    if (!form.name.trim()) {
+      showAlert('warning', 'Incomplete Form', 'Please enter the Product Name.'); return;
+    }
+    if (!form.description.trim()) {
+      showAlert('warning', 'Incomplete Form', 'Please enter the Product Description.'); return;
+    }
+    if (form.sizes.length === 0) {
+      showAlert('warning', 'Incomplete Form', 'Please select at least one Size.'); return;
+    }
+    if (form.sets.length === 0) {
+      showAlert('warning', 'Incomplete Form', 'Please select at least one Set.'); return;
+    }
+    if (!form.sellingPrice) {
+      showAlert('warning', 'Incomplete Form', 'Please enter the Selling Price.'); return;
+    }
+    if (!form.retailPrice) {
+      showAlert('warning', 'Incomplete Form', 'Please enter the Retail Price.'); return;
+    }
+    if (!form.category) {
+      showAlert('warning', 'Incomplete Form', 'Please select a Product Category.'); return;
+    }
+    setModal('confirm');
+  };
 
   // ─── Upload images then save ──────────────────────────────────────────────
   const uploadImagesToServer = async () => {
@@ -403,12 +431,6 @@ export default function Product() {
       showAlert('error', 'Update Failed', 'Could not update the product status. Please try again.');
     }
   };
-
-  // ─── Form validation ──────────────────────────────────────────────────────
-  const isFormValid =
-    form.code && form.name && form.description && form.category &&
-    form.sizes.length > 0 && form.sets.length > 0 &&
-    form.retailPrice !== '' && form.sellingPrice !== '';
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
@@ -699,7 +721,6 @@ export default function Product() {
                       value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} />
                   </div>
 
-                  {/* ── SIZE CHIPS — FIX: String(s._id) for both includes() and toggleArr() ── */}
                   <div className="pmodal__field">
                     <label className="pmodal__field-label">Size: <span className="pmodal__required">*</span></label>
                     <p className="pmodal__pick-hint">Pick Available Size</p>
@@ -718,7 +739,6 @@ export default function Product() {
                     </div>
                   </div>
 
-                  {/* ── SET CHIPS — FIX: String(s._id) for both includes() and toggleArr() ── */}
                   <div className="pmodal__field">
                     <label className="pmodal__field-label">Set: <span className="pmodal__required">*</span></label>
                     <p className="pmodal__pick-hint">Pick Available Set</p>
@@ -757,12 +777,12 @@ export default function Product() {
                     </div>
                     <div className="pmodal__price-fields">
                       <div className="pmodal__sub-field">
-                        <label className="pmodal__sub-label">Selling Price:</label>
+                        <label className="pmodal__sub-label">Selling Price: <span className="pmodal__required">*</span></label>
                         <input className="pmodal__price-input" placeholder="Wholesale Price"
                           value={form.sellingPrice} onChange={(e) => setForm(f => ({ ...f, sellingPrice: e.target.value }))} />
                       </div>
                       <div className="pmodal__sub-field">
-                        <label className="pmodal__sub-label">Retail Price:</label>
+                        <label className="pmodal__sub-label">Retail Price: <span className="pmodal__required">*</span></label>
                         <input className="pmodal__price-input" placeholder="Retail Price"
                           value={form.retailPrice} onChange={(e) => setForm(f => ({ ...f, retailPrice: e.target.value }))} />
                       </div>
@@ -852,7 +872,7 @@ export default function Product() {
 
                 <h3 className="pmodal__section-label pmodal__section-label--mt">Inventory</h3>
                 <div className="pmodal__inv-card">
-                  <label className="pmodal__sub-label">Stock Quantity: <span className="pmodal__required">*</span></label>
+                  <label className="pmodal__sub-label">Stock Quantity:</label>
                   <input className="pmodal__inv-input" placeholder="Stock by Pack"
                     value={form.stockQty} onChange={(e) => setForm(f => ({ ...f, stockQty: e.target.value }))} />
                 </div>
@@ -876,7 +896,8 @@ export default function Product() {
                   {products.find(p => (p._id ?? p.id) === editId)?.isActive === false ? 'Set Active' : 'Set Inactive'}
                 </button>
               )}
-              <button className="pmodal__submit-btn" onClick={() => setModal('confirm')} disabled={!isFormValid}>
+              {/* ── CHANGED: onClick now calls handleProceedToConfirm instead of setModal('confirm') directly ── */}
+              <button className="pmodal__submit-btn" onClick={handleProceedToConfirm}>
                 {modal === 'edit' ? 'Save Changes' : 'Add Product'}
               </button>
             </div>
@@ -899,8 +920,6 @@ export default function Product() {
                   <div className="pmodal__field"><label className="pmodal__field-label">Product Code:</label><div className="pmodal__readonly-val">{form.code || '—'}</div></div>
                   <div className="pmodal__field"><label className="pmodal__field-label">Product Name:</label><div className="pmodal__readonly-val">{form.name || '—'}</div></div>
                   <div className="pmodal__field"><label className="pmodal__field-label">Description:</label><div className="pmodal__readonly-val pmodal__readonly-val--tall">{form.description || '—'}</div></div>
-
-                  {/* ── CONFIRM SIZE CHIPS — FIX: String(s._id) ── */}
                   <div className="pmodal__field">
                     <label className="pmodal__field-label">Size:</label>
                     <div className="pmodal__chip-row">
@@ -911,8 +930,6 @@ export default function Product() {
                       ))}
                     </div>
                   </div>
-
-                  {/* ── CONFIRM SET CHIPS — FIX: String(s._id) ── */}
                   <div className="pmodal__field">
                     <label className="pmodal__field-label">Set:</label>
                     <div className="pmodal__chip-row">
