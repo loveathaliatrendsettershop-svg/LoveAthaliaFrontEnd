@@ -10,8 +10,6 @@ const chunk = (arr, size) => {
 
 const formatPeso = (n) => 'P ' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2 });
 
-// ─── Alert Modal ──────────────────────────────────────────────────────────────
-
 const ALERT_META = {
   success: { icon: 'check',   iconColor: '#3DB82B', circleBg: 'rgba(112,233,90,0.15)', circleBorder: 'rgba(112,233,90,0.45)', btnBg: '#3DB82B' },
   error:   { icon: 'close',   iconColor: '#c0392b', circleBg: 'rgba(192,57,43,0.10)',  circleBorder: 'rgba(192,57,43,0.35)', btnBg: '#c0392b' },
@@ -37,8 +35,6 @@ function AlertModal({ type, title, message, btnLabel = 'OK', onClose }) {
   );
 }
 
-// ─── Main POS Component ───────────────────────────────────────────────────────
-
 export default function POS() {
   const [products,       setProducts]       = useState([]);
   const [categories,     setCategories]     = useState(['All']);
@@ -55,10 +51,7 @@ export default function POS() {
   const [alertModal,     setAlertModal]     = useState(null);
 
   const showAlert = (type, title, message, btnLabel = 'OK', onClose = null) => {
-    setAlertModal({
-      type, title, message, btnLabel,
-      onClose: onClose ?? (() => setAlertModal(null)),
-    });
+    setAlertModal({ type, title, message, btnLabel, onClose: onClose ?? (() => setAlertModal(null)) });
   };
 
   useEffect(() => {
@@ -81,7 +74,7 @@ export default function POS() {
           initSels[p._id] = {
             set:  p.set?.[0]?.name  || '',
             size: p.size?.[0]?.name || '',
-            qty:  p.slot || 1,
+            qty:  p.quantityPerPack || 1,
           };
         });
         setSels(initSels);
@@ -185,13 +178,8 @@ export default function POS() {
 
       if (paymentMethod === 'Cash') {
         setModal(null);
-        showAlert(
-          'success',
-          'Order Successful!',
-          'Cash order processed. Stock updated and ready to ship.',
-          'New Order',
-          () => { setAlertModal(null); handleNewOrder(); }
-        );
+        showAlert('success', 'Order Successful!', 'Cash order processed. Stock updated and ready to ship.', 'New Order',
+          () => { setAlertModal(null); handleNewOrder(); });
         return;
       }
 
@@ -223,13 +211,8 @@ export default function POS() {
       }
 
       setModal(null);
-      showAlert(
-        'success',
-        'Payment Confirmed!',
-        'Reference saved. Order is now marked as To Ship.',
-        'New Order',
-        () => { setAlertModal(null); handleNewOrder(); }
-      );
+      showAlert('success', 'Payment Confirmed!', 'Reference saved. Order is now marked as To Ship.', 'New Order',
+        () => { setAlertModal(null); handleNewOrder(); });
     } catch (err) {
       console.error('Payment ref error:', err);
       showAlert('error', 'Connection Error', 'Something went wrong. Please try again.', 'Try Again');
@@ -238,13 +221,8 @@ export default function POS() {
 
   const handlePayLater = () => {
     setModal(null);
-    showAlert(
-      'success',
-      'Order Saved!',
-      'Order is reserved. Payment reference can be submitted later in the Transactions page.',
-      'New Order',
-      () => { setAlertModal(null); handleNewOrder(); }
-    );
+    showAlert('success', 'Order Saved!', 'Order is reserved. Payment reference can be submitted later in the Transactions page.', 'New Order',
+      () => { setAlertModal(null); handleNewOrder(); });
   };
 
   if (loading) return <div className="pos__loading">Loading products...</div>;
@@ -424,13 +402,7 @@ export default function POS() {
           <div className="pos__payref-modal" style={{ position:'relative' }}>
             <button
               onClick={() => setModal(null)}
-              style={{
-                position:'absolute', top:12, right:12,
-                width:28, height:28, borderRadius:'50%',
-                border:'0.5px solid #D9D9D9', background:'#fff',
-                display:'flex', alignItems:'center', justifyContent:'center',
-                cursor:'pointer', transition:'background 0.2s',
-              }}
+              style={{ position:'absolute', top:12, right:12, width:28, height:28, borderRadius:'50%', border:'0.5px solid #D9D9D9', background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', transition:'background 0.2s' }}
               onMouseEnter={e => e.currentTarget.style.background = '#f0f0f0'}
               onMouseLeave={e => e.currentTarget.style.background = '#fff'}
             >
@@ -444,11 +416,7 @@ export default function POS() {
               or click <strong>Later</strong> to keep it as <strong>Reserved</strong>.
             </p>
 
-            <div style={{
-              display:'flex', alignItems:'center', gap:8,
-              background:'rgba(0,0,0,0.04)', borderRadius:8,
-              padding:'8px 12px', marginBottom:12, fontSize:12,
-            }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8, background:'rgba(0,0,0,0.04)', borderRadius:8, padding:'8px 12px', marginBottom:12, fontSize:12 }}>
               <span className="material-icons" style={{ fontSize:16, color:'rgba(0,0,0,0.4)' }}>
                 {paymentMethod === 'GCash' ? 'qr_code_scanner' : 'add_card'}
               </span>
@@ -478,9 +446,7 @@ export default function POS() {
               >
                 Confirm Payment
               </button>
-              <button className="pos__payref-later-btn" onClick={handlePayLater}>
-                Later
-              </button>
+              <button className="pos__payref-later-btn" onClick={handlePayLater}>Later</button>
             </div>
           </div>
         </div>
@@ -489,13 +455,12 @@ export default function POS() {
   );
 }
 
-// ─── ProductCard ──────────────────────────────────────────────────────────────
-
 function ProductCard({ product, sel, onSel, onAdd }) {
   const sets     = product.set  || [];
   const sizes    = product.size || [];
   const setRows  = chunk(sets,  4);
   const sizeRows = chunk(sizes, 5);
+  const minQty   = product.quantityPerPack || 1;
 
   return (
     <div className="pos__card">
@@ -548,13 +513,18 @@ function ProductCard({ product, sel, onSel, onAdd }) {
           </div>
 
           <div className="pos__card-qty-area">
-            {product.slot > 0 && <p className="pos__card-min">minimum of {product.slot} per order</p>}
+            {product.slot > 0 && (
+              <p className="pos__card-min">{product.slot} slot{product.slot !== 1 ? 's' : ''} available</p>
+            )}
+            {minQty > 0 && (
+              <p className="pos__card-min">{minQty} pack{minQty !== 1 ? 's' : ''} per slot</p>
+            )}
             <div className="pos__card-qty-row">
               <span className="pos__card-qty-label">Quantity:</span>
               <div className="pos__card-stepper">
-                <button onClick={() => onSel('qty', Math.max(product.slot || 1, (sel?.qty || product.slot || 1) - 1))}>−</button>
-                <span>{sel?.qty || product.slot || 1}</span>
-                <button onClick={() => onSel('qty', (sel?.qty || product.slot || 1) + 1)}>+</button>
+                <button onClick={() => onSel('qty', Math.max(minQty, (sel?.qty || minQty) - 1))}>−</button>
+                <span>{sel?.qty || minQty}</span>
+                <button onClick={() => onSel('qty', (sel?.qty || minQty) + 1)}>+</button>
               </div>
             </div>
           </div>
@@ -569,7 +539,7 @@ function ProductCard({ product, sel, onSel, onAdd }) {
           </div>
           <div className="pos__card-meta">
             <span className="pos__card-stock-lbl">Stock: {product.stock ?? 0}</span>
-            <span className="pos__card-pcs">{product.quantityPerPack ?? 0} pcs per pack</span>
+            <span className="pos__card-pcs">{product.quantityPerPack ?? 0} packs per slot</span>
           </div>
         </div>
         <button className="pos__card-add-btn" onClick={onAdd}>Add Order</button>
@@ -578,21 +548,13 @@ function ProductCard({ product, sel, onSel, onAdd }) {
   );
 }
 
-// ─── ConfirmOrderModal ────────────────────────────────────────────────────────
-
 function ConfirmOrderModal({ customerName, cart, paymentMethod, subtotal, total, onEdit, onConfirm, onClose }) {
   return (
     <div className="pos__overlay">
       <div className="pos__cm" style={{ position:'relative' }}>
         <button
           onClick={onClose}
-          style={{
-            position:'absolute', top:12, right:12,
-            width:28, height:28, borderRadius:'50%',
-            border:'0.5px solid #D9D9D9', background:'#fff',
-            display:'flex', alignItems:'center', justifyContent:'center',
-            cursor:'pointer', transition:'background 0.2s',
-          }}
+          style={{ position:'absolute', top:12, right:12, width:28, height:28, borderRadius:'50%', border:'0.5px solid #D9D9D9', background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', transition:'background 0.2s' }}
           onMouseEnter={e => e.currentTarget.style.background = '#f0f0f0'}
           onMouseLeave={e => e.currentTarget.style.background = '#fff'}
         >
@@ -618,7 +580,7 @@ function ConfirmOrderModal({ customerName, cart, paymentMethod, subtotal, total,
                   {item.size && ` · Size: ${item.size}`}
                 </p>
                 <p className="pos__cm-item-price">P {item.price.toLocaleString()}.00</p>
-                <span className="pos__cm-item-qty">{item.qty} {item.qty === 1 ? 'piece' : 'pieces'}</span>
+                <span className="pos__cm-item-qty">{item.qty} {item.qty === 1 ? 'pack' : 'packs'}</span>
               </div>
               <p className="pos__cm-item-total">P {(item.price * item.qty).toLocaleString()}.00</p>
             </div>
@@ -638,15 +600,7 @@ function ConfirmOrderModal({ customerName, cart, paymentMethod, subtotal, total,
         </div>
 
         {paymentMethod !== 'Cash' && (
-          <div style={{
-            background: 'rgba(147,197,253,0.15)',
-            border:     '1px solid rgba(147,197,253,0.5)',
-            borderRadius: 8,
-            padding:    '8px 12px',
-            fontSize:   11,
-            color:      'rgba(0,0,0,0.55)',
-            marginBottom: 12,
-          }}>
+          <div style={{ background:'rgba(147,197,253,0.15)', border:'1px solid rgba(147,197,253,0.5)', borderRadius:8, padding:'8px 12px', fontSize:11, color:'rgba(0,0,0,0.55)', marginBottom:12 }}>
             💡 You'll be asked for the payment reference number next. You can also submit it later in Transactions.
           </div>
         )}
