@@ -1,0 +1,230 @@
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Prop+Double+Ink:wght@100..900&family=Geist:wght@100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Manrope:wght@200..800&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto+Slab:wght@100..900&display=swap');
+
+* {
+    margin: 0;
+}
+
+body,
+html {
+    margin: 0;
+    overflow: hidden;
+}
+
+.login-main {
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    width: 100%;
+}
+
+.login-container {
+    position: fixed;
+    width: 600px;
+    height: 100vh;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-container img {
+    width: 322px;
+    height: auto;
+}
+
+.login-container h2 {
+    font-size: 24px;
+    margin-top: 10px;
+    font-family: "Manrope", sans-serif;
+    font-weight: 800;
+}
+
+.login-container p {
+    margin-top: 10px;
+    font-size: 15px;
+    font-family: "Manrope", sans-serif;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 60px;
+}
+
+.input-user {
+    width: 346px;
+    height: 30px;
+    border-radius: 30px;
+    padding: 10px;
+    margin-bottom: 40px;
+    border: 1px solid;
+}
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.forgot p {
+    position: absolute;
+    top: -35px;
+    right: 4%;
+    font-size: 13px;
+    font-family: "Manrope", sans-serif;
+    color: black;
+    cursor: pointer;
+}
+
+.input-password {
+    width: 346px;
+    height: 30px;
+    border-radius: 30px;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid;
+}
+
+.password-container img {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-100%);
+    width: 22px;  
+    height: 22px;
+}
+
+.login-submit {
+    background-color: #70020F;
+    width: 400px;
+    height: 50px;
+    border-radius: 30px;
+    padding: 10px;
+    font-family: "Manrope", sans-serif;
+    font-size: 16px;
+    color: white;
+    margin-top: 20px;
+}
+
+@media (max-width: 480px) {
+    .login-main {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        width: 100%;
+    }
+
+    .login-container {
+        position: relative;
+        width: 90%;
+        max-width: 600px;
+        height: auto;
+        margin: 0 auto;
+        top: unset;
+        right: unset;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        align-self: center;
+    }
+
+    .login-header {
+        margin-top: 30px;
+    }
+
+    .login-header h2 {
+        font-size: 7vw;
+    }
+
+    .login-header p {
+        font-size: 5vw;
+        text-align: center;
+    }
+
+    .input-user {
+        margin-bottom: 0;
+    }
+
+    .password-container img {
+        transform: translateY(-10%);
+    }
+
+    .forgot {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .forgot p {
+        position: static;
+        font-size: 15px;
+        margin-bottom: 10px;
+    }
+
+
+    .login-submit {
+        width: 90%;
+        font-size: 4vw;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .login-main {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        width: 100%;
+    }
+
+    .login-container {
+        position: relative;
+        width: 80%;
+        max-width: 500px;
+        height: auto;
+        margin: 0 auto;
+        top: unset;
+        right: unset;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding-top: 20px;
+    }
+
+    .login-header {
+        margin-top: 20px;
+    }
+
+    .login-header h2 {
+        font-size: 6vw;
+        text-align: center;
+    }
+
+    .login-header p {
+        font-size: 4vw;
+        text-align: center;
+    }
+
+    .forgot p {
+        top: -30px;
+        right: 5%;
+        font-size: 12px;
+    }
+
+    .login-submit {
+        width: 80%;
+        font-size: 3vw;
+    }
+}

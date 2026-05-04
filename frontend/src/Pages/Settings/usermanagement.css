@@ -1,0 +1,539 @@
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Prop+Double+Ink:wght@100..900&family=Geist:wght@100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Manrope:wght@200..800&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto+Slab:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+
+* {
+    margin: 0;
+    font-family: "Manrope", sans-serif;
+}
+
+body,
+html {
+    height: 100%;
+    overflow-x: hidden;
+}
+
+.umaccount-container {
+    background-color: #FCFCFC;
+    flex: 1;
+}
+
+.store-information {
+    width: 100%;
+    height: auto;
+}
+
+.umaccount-content {
+    display: flex;
+    width: 100%;
+}
+
+.pmodal__overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000; /* ⭐ ADD THIS */
+}
+
+.umaccount {
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    margin-left: 297px;
+    width: 100%;
+}
+
+.umaccount-header {
+    margin-top: 30px;
+    width: 450px;
+    display: flex;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 0.5px solid #D9D9D9;
+    margin-left: 40px;
+}
+
+.management {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+
+.management button {
+    width: 24px;
+    height: 20px;
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background-color: white;
+}
+
+.account-settings {
+    display: flex;
+    font-size: 24px;
+    font-weight: bolder;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+}
+
+.account-settings button {
+    width: 24px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    gap: 5px;
+    background-color: white;
+}
+
+.umaccount-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.user-info {
+    display: flex;
+    margin-top: 50px;
+    justify-content: space-between;
+    gap: 50px;
+}
+
+.user-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.user-info img {
+    width: 144px;
+    height: auto;
+    border-radius: 50%;
+}
+
+.info-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-button {
+    display: flex;
+    gap: 10px;
+}
+
+.change {
+    width: 152px;
+    height: 46px;
+    padding: 10px;
+    background-color: #70020F;
+    color: white;
+    border: none;
+}
+
+.remove {
+    width: 152px;
+    height: 46px;
+    padding: 10px;
+    background-color: #D9D9D9;
+    border: none;
+}
+
+.info-name {
+    display: flex;
+    gap: 10px;
+    margin-top: 50px;
+}
+
+.info-name p {
+    border: 1px solid #D9D9D9;
+    width: 259px;
+    display: flex;
+    align-items: center;
+    padding-left: 5px;
+    height: 32px;
+    margin-top: 10px;
+}
+
+.account-security {
+    display: flex;
+    flex-direction: column;
+    margin-top: 50px;
+    width: 100%;
+    margin-left: 50px;
+    gap: 20px;
+}
+
+.as-header {
+    width: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    font-size: 24px;
+    font-weight: bold;
+    padding-bottom: 10px;
+    border-bottom: 0.5px solid #D9D9D9;
+}
+
+.as-content {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    padding: 10px;
+}
+
+.as-email {
+    display: flex;
+    flex-direction: column;
+}
+
+.as-email p {
+    font-size: 15px;
+}
+
+.change-email {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.change-email p {
+    width: 213px;
+    height: 26px;
+    background-color: #d7cbcb;
+    padding-left: 5px;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: black;
+}
+
+.as-password {
+    display: flex;
+    flex-direction: column;
+}
+
+.as-password p {
+    font-size: 15px;
+}
+
+.change-password {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.change-password p {
+    width: 213px;
+    height: 26px;
+    background-color: #d7cbcb;
+    padding-left: 5px;
+    font-size: 13px;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+
+.change-password button {
+    height: 25px;
+    border: none;
+    align-items: center;
+    width: 125px;
+    background-color: #D9D9D9;
+}
+
+/* Edit input */
+.edit-input {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 14px;
+    width: 100%;
+    margin-top: 4px;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+/* Role badge */
+.role-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+.role-badge.admin { background: #fff3cd; color: #856404; }
+.role-badge.cashier { background: #d1ecf1; color: #0c5460; }
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.modal-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px;
+    width: 380px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.modal-header h3 { margin: 0; font-size: 18px; }
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #666;
+}
+.modal-body { display: flex; flex-direction: column; gap: 14px; }
+.modal-field { display: flex; flex-direction: column; gap: 5px; }
+.modal-field label { font-size: 13px; font-weight: 600; color: #444; }
+.modal-field input {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+}
+.modal-error { color: #dc3545; font-size: 13px; margin-top: 4px; }
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+@media screen and (min-width: 375px) and (max-width: 480px) {
+    .umaccount-content {
+        margin-left: 20px;
+        flex-direction: column;
+    }
+
+    .umaccount {
+        margin-left: 130px;
+        width: calc(100% - 140px);
+    }
+
+    .umaccount-header {
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .umaccount-header p {
+        font-size: 13px;
+    }
+
+    .account-settings {
+        font-size: 12px;
+        gap: 3px;
+    }
+
+    .umaccount-main {
+        width: 100%;
+        padding: 10px;
+        display: flex;
+    }
+
+    .user-info {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        width: 50%;
+    }
+
+    .user-info img {
+        width: 120px;
+        height: 120px;
+    }
+
+    .info-container {
+        width: 100%;
+        align-items: center;
+        text-align: center;
+    }
+
+    .change {
+        width: 80px;
+        height: 40px;
+        font-size: 10px;
+    }
+
+    .remove {
+        width: 80px;
+        height: 40px;
+        font-size: 10px;
+    }
+
+
+    .info-name {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .info-name p {
+        width: 100%;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .account-security,
+    .support-access {
+        width: 95%;
+        margin-left: 0;
+        margin-top: 30px;
+        gap: 15px;
+    }
+
+    .as-header,
+    .sa-header {
+        font-size: 20px;
+        padding-bottom: 5px;
+    }
+
+    .as-content,
+    .sa-content {
+        width: 100%;
+        padding: 5px;
+    }
+
+    .change-email p,
+    .change-password p {
+        width: 50%;
+        font-size: 12px;
+        height: 24px;
+    }
+
+    .change-email button,
+    .change-password button {
+        width: 115px;
+        height: 22px;
+        font-size: 12px;
+    }
+
+}
+
+@media screen and (min-width: 481px) and (max-width: 1024px) {
+
+    .umaccount {
+        margin-left: 0;
+    }
+
+    .user-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 20px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .umaccount-header {
+        width: 100%;
+        margin-left: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+
+    .management {
+        font-size: 15px;
+    }
+
+    .account-settings {
+        font-size: 18px;
+        gap: 3px;
+
+    }
+
+    .umaccount-main {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .user-info img {
+        width: 120px;
+        height: 120px;
+    }
+
+    .info-container {
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .info-name {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .info-name p {
+        width: 100%;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .account-security,
+    .support-access {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 30px;
+        gap: 15px;
+    }
+
+    .as-header,
+    .sa-header {
+        font-size: 20px;
+        padding-bottom: 5px;
+    }
+
+    .as-content,
+    .sa-content {
+        width: 70%;
+        padding: 5px;
+    }
+
+    .change-email p,
+    .change-password p {
+        width: 50%;
+        font-size: 12px;
+        height: 24px;
+    }
+
+    .change-password button {
+        width: 120px;
+        height: 22px;
+        font-size: 12px;
+    }
+}

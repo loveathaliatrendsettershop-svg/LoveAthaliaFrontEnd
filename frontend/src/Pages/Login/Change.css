@@ -1,0 +1,195 @@
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Prop+Double+Ink:wght@100..900&family=Geist:wght@100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Manrope:wght@200..800&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto+Slab:wght@100..900&display=swap');
+
+* {
+    margin: 0;
+}
+
+body,
+html {
+    margin: 0;
+    overflow: hidden;
+    height: 100%;
+}
+
+.change-main {
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    width: 100%;
+}
+
+.change-container {
+    position: fixed;
+    width: 600px;
+    height: 100vh;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 100px;
+}
+
+.change-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.change-container img {
+    width: 40vw;
+    max-width: 222px;
+    height: auto;
+}
+
+.change-confirm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.change-confirm img {
+    width: 170px;
+    height: auto;
+}
+
+.change-confirm h2 {
+    font-size: 32px;
+    font-weight: 600;
+    margin-top: 30px;
+    font-family: "Manrope", sans-serif;
+}
+
+.change-confirm p {
+    margin-top: 10px;
+    font-size: 16px;
+    font-family: "Manrope", sans-serif;
+}
+
+.change-submit {
+    background-color: #70020F;
+    width: 400px;
+    height: 50px;
+    border-radius: 30px;
+    padding: 10px;
+    font-family: "Manrope", sans-serif;
+    font-size: 16px;
+    color: white;
+    margin-top: 30px;
+}
+
+@media (max-width: 480px) {
+    .change-main {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        width: 100%;
+    }
+
+    .change-container {
+        position: relative;
+        width: 90%;
+        max-width: 600px;
+        height: auto;
+        margin: 0 auto;
+        top: unset;
+        right: unset;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        align-self: center;
+    }
+
+    .change-header {
+        margin-top: 30px;
+    }
+
+    .change-container img {
+        width: 90%;
+        max-width: none;
+    }
+
+    .change-container img {
+        width: 60%;
+    }
+
+    .change-confirm img {
+        width: 40%;
+    }
+
+    .change-confirm h2 {
+        font-size: 7vw;
+    }
+
+    .change-confirm p {
+        font-size: 5vw;
+        text-align: center;
+    }
+
+    .change-submit {
+        width: 90%;
+        font-size: 5vw;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .change-main {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        width: 100%;
+    }
+
+    .change-container {
+        position: relative;
+        width: 80%;
+        max-width: 500px;
+        height: auto;
+        margin: 0 auto;
+        top: unset;
+        right: unset;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding-top: 20px;
+    }
+
+    .change-header {
+        margin-top: 20px;
+    }
+
+    .change-header img {
+        width: 60%;
+        max-width: 350px;
+    }
+
+    .change-container img {
+        width: 50%;
+    }
+
+    .change-confirm img {
+        width: 40%;
+    }
+
+    .change-confirm h2 {
+        font-size: 6vw;
+        text-align: center;
+    }
+
+    .change-confirm p {
+        font-size: 4vw;
+        text-align: center;
+    }
+
+    .change-submit {
+        width: 80%;
+        font-size: 3vw;
+    }
+}
