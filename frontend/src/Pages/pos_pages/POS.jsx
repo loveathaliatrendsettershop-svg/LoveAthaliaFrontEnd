@@ -78,7 +78,6 @@ export default function POS() {
 
         const initSels = {};
         prodData.forEach(p => {
-          // ✅ FIX: p.set and p.size are arrays of populated objects
           initSels[p._id] = {
             set:  p.set?.[0]?.name  || '',
             size: p.size?.[0]?.name || '',
@@ -493,7 +492,6 @@ export default function POS() {
 // ─── ProductCard ──────────────────────────────────────────────────────────────
 
 function ProductCard({ product, sel, onSel, onAdd }) {
-  // ✅ FIX: p.set and p.size are arrays of populated objects
   const sets     = product.set  || [];
   const sizes    = product.size || [];
   const setRows  = chunk(sets,  4);
