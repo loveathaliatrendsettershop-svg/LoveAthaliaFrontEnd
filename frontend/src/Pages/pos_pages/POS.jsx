@@ -78,9 +78,10 @@ export default function POS() {
 
         const initSels = {};
         prodData.forEach(p => {
+          // ✅ FIX: p.set and p.size are single populated objects, not arrays
           initSels[p._id] = {
-            set:  p.set?.[0]?.name  || '',
-            size: p.size?.[0]?.name || '',
+            set:  p.set?.name  || '',
+            size: p.size?.name || '',
             qty:  p.slot || 1,
           };
         });
@@ -128,7 +129,8 @@ export default function POS() {
         price:     product.wholesalePrice,
         set:       sel?.set  || '',
         size:      sel?.size || '',
-        sizes:     product.size?.map(s => s.name) || [],
+        // ✅ FIX: wrap single object in array for sizes list
+        sizes:     product.size ? [product.size.name] : [],
         qty:       sel?.qty  || 1,
       }];
     });
@@ -155,7 +157,6 @@ export default function POS() {
     setPaymentRef(''); setEditMode(false); setModal(null); setAlertModal(null);
   };
 
-  // ─── Map UI payment method to backend enum ────────────────────────────────
   const getPaymentMethodKey = () => {
     if (paymentMethod === 'Cash')       return 'cash';
     if (paymentMethod === 'GCash')      return 'gcash';
@@ -163,7 +164,6 @@ export default function POS() {
     return 'cash';
   };
 
-  // ─── Step 1: Place order (Cash → done, GCash/Card → go to payref) ─────────
   const handleConfirmOrder = async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
@@ -185,7 +185,6 @@ export default function POS() {
 
       const order = await res.json();
 
-      // Cash → already paid + stock deducted by backend, done
       if (paymentMethod === 'Cash') {
         setModal(null);
         showAlert(
@@ -198,7 +197,6 @@ export default function POS() {
         return;
       }
 
-      // GCash / Union Bank → go to payment reference modal, pass orderId
       setModal({ type: 'payref', orderId: order._id });
 
     } catch (err) {
@@ -208,7 +206,6 @@ export default function POS() {
     }
   };
 
-  // ─── Step 2a: Submit reference → marks as Paid + To Ship ─────────────────
   const handleSubmitReference = async () => {
     if (!paymentRef.trim()) {
       showAlert('warning', 'Reference Required', 'Please enter the payment reference number.', 'Got it');
@@ -241,7 +238,6 @@ export default function POS() {
     }
   };
 
-  // ─── Step 2b: Pay Later → order stays Reserved (pending payment) ──────────
   const handlePayLater = () => {
     setModal(null);
     showAlert(
@@ -415,7 +411,6 @@ export default function POS() {
         </div>
       </div>
 
-      {/* ─── Confirm Order Modal ─── */}
       {modal === 'confirm' && (
         <ConfirmOrderModal
           customerName={customerName} cart={cart} paymentMethod={paymentMethod}
@@ -426,11 +421,9 @@ export default function POS() {
         />
       )}
 
-      {/* ─── Payment Reference Modal (GCash / Union Bank only) ─── */}
       {modal?.type === 'payref' && (
         <div className="pos__overlay">
           <div className="pos__payref-modal" style={{ position:'relative' }}>
-
             <button
               onClick={() => setModal(null)}
               style={{
@@ -453,7 +446,6 @@ export default function POS() {
               or click <strong>Later</strong> to keep it as <strong>Reserved</strong>.
             </p>
 
-            {/* Payment method badge */}
             <div style={{
               display:'flex', alignItems:'center', gap:8,
               background:'rgba(0,0,0,0.04)', borderRadius:8,
@@ -473,7 +465,6 @@ export default function POS() {
               onChange={(e) => setPaymentRef(e.target.value)}
             />
 
-            {/* Status preview */}
             <div style={{ fontSize:11, color:'rgba(0,0,0,0.4)', marginBottom:16, marginTop:4 }}>
               {paymentRef.trim()
                 ? '✓ With reference → order will be marked as To Ship'
@@ -503,8 +494,9 @@ export default function POS() {
 // ─── ProductCard ──────────────────────────────────────────────────────────────
 
 function ProductCard({ product, sel, onSel, onAdd }) {
-  const sets     = product.set  || [];
-  const sizes    = product.size || [];
+  // ✅ FIX: p.set and p.size are single populated objects, wrap in array for rendering
+  const sets     = product.set  ? [product.set]  : [];
+  const sizes    = product.size ? [product.size] : [];
   const setRows  = chunk(sets,  4);
   const sizeRows = chunk(sizes, 5);
 
@@ -595,7 +587,6 @@ function ConfirmOrderModal({ customerName, cart, paymentMethod, subtotal, total,
   return (
     <div className="pos__overlay">
       <div className="pos__cm" style={{ position:'relative' }}>
-
         <button
           onClick={onClose}
           style={{
@@ -649,7 +640,6 @@ function ConfirmOrderModal({ customerName, cart, paymentMethod, subtotal, total,
           <span className="pos__cm-pay-val">{paymentMethod}</span>
         </div>
 
-        {/* Info note for non-cash */}
         {paymentMethod !== 'Cash' && (
           <div style={{
             background: 'rgba(147,197,253,0.15)',
