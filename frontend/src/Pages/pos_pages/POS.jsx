@@ -525,7 +525,9 @@ function ProductCard({ product, sel, onSel, onAdd }) {
               <p className="pos__card-min" style={{ color: '#c0392b' }}>No slots available</p>
             )}
             {minQty > 0 && (
-              <p className="pos__card-min">{minQty} pack{minQty !== 1 ? 's' : ''} per slot</p>
+              <p className="pos__card-min">
+                Min packs per slot: {minQty}
+              </p>
             )}
             <div className="pos__card-qty-row">
               <span className="pos__card-qty-label">Quantity:</span>
