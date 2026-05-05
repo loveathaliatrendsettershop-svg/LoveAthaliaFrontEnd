@@ -729,7 +729,7 @@ export default function Product() {
                       <div style={{ display: 'flex', gap: 8 }}>
                         <input
                           className="pmodal__sub-input"
-                          placeholder="pack"
+                          placeholder="Minimum pack per slot"
                           value={form.packQty}
                           onChange={(e) => setForm(f => ({ ...f, packQty: e.target.value }))}
                         />
