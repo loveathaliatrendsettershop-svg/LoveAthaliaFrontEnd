@@ -54,7 +54,6 @@ export default function POS() {
     setAlertModal({ type, title, message, btnLabel, onClose: onClose ?? (() => setAlertModal(null)) });
   };
 
-useEffect(() => {
   const fetchData = async () => {
     try {
       const [prodRes, catRes] = await Promise.all([
@@ -72,9 +71,9 @@ useEffect(() => {
       const initSels = {};
       prodData.forEach(p => {
         initSels[p._id] = {
-          set: p.set?.[0]?.name || '',
-          sizes: p.size?.map(s => s.name) || [], // ✅ ALL sizes preselected
-          qty: p.quantityPerPack || 1,
+          set:   p.set?.[0]?.name || '',
+          sizes: p.size?.map(s => s.name) || [],
+          qty:   p.quantityPerPack || 1,
         };
       });
       setSels(initSels);
@@ -86,8 +85,10 @@ useEffect(() => {
       setLoading(false);
     }
   };
-  fetchData();
-}, []);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const filteredProducts = products.filter((p) => {
     const matchCat    = activeCategory === 'All' || p.category === activeCategory;
@@ -104,35 +105,29 @@ useEffect(() => {
     setSels((prev) => ({ ...prev, [pid]: { ...prev[pid], [field]: val } }));
 
   const addToCart = (product) => {
-  const sel = sels[product._id];
+    const sel = sels[product._id];
+    const key = `${product._id}_${sel?.set}_ALLSIZES`;
 
-  const key = `${product._id}_${sel?.set}_ALLSIZES`;
-
-  setCart((prev) => {
-    const idx = prev.findIndex((i) => i.key === key);
-
-    if (idx >= 0) {
-      const next = [...prev];
-      next[idx] = {
-        ...next[idx],
-        qty: next[idx].qty + (sel?.qty || 1),
-      };
-      return next;
-    }
-
-    return [...prev, {
-      id: Date.now() + Math.random(),
-      key,
-      productId: product._id,
-      name: product.name,
-      img: product.images?.[0] || '',
-      price: product.wholesalePrice,
-      set: sel?.set || '',
-      sizes: sel?.sizes || [], // ✅ store ALL sizes
-      qty: sel?.qty || 1,
-    }];
-  });
-};
+    setCart((prev) => {
+      const idx = prev.findIndex((i) => i.key === key);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = { ...next[idx], qty: next[idx].qty + (sel?.qty || 1) };
+        return next;
+      }
+      return [...prev, {
+        id:        Date.now() + Math.random(),
+        key,
+        productId: product._id,
+        name:      product.name,
+        img:       product.images?.[0] || '',
+        price:     product.wholesalePrice,
+        set:       sel?.set   || '',
+        sizes:     sel?.sizes || [],
+        qty:       sel?.qty   || 1,
+      }];
+    });
+  };
 
   const removeFromCart = (id) => setCart((prev) => prev.filter((i) => i.id !== id));
   const updateCartQty  = (id, delta) =>
@@ -153,6 +148,7 @@ useEffect(() => {
   const handleNewOrder = () => {
     setCart([]); setCustomerName(''); setPaymentMethod('Cash');
     setPaymentRef(''); setEditMode(false); setModal(null); setAlertModal(null);
+    fetchData();
   };
 
   const getPaymentMethodKey = () => {
@@ -336,9 +332,7 @@ useEffect(() => {
                       <p className="pos__cart-variant">
                         {item.set}
                         {item.sizes?.length > 0 && (
-                          <span className="pos__cart-sizes">
-                            {' '}· Sizes: {item.sizes.join(', ')}
-                          </span>
+                          <span className="pos__cart-sizes"> · Sizes: {item.sizes.join(', ')}</span>
                         )}
                       </p>
                       <p className="pos__cart-price">P {item.price.toLocaleString()}.00</p>
@@ -504,28 +498,31 @@ function ProductCard({ product, sel, onSel, onAdd }) {
             ))}
           </div>
 
-         <div className="pos__sel-grp">
-  <div className="pos__sel-hdr">
-    <span className="pos__sel-label">Size</span>
-  </div>
-  {sizeRows.map((row, ri) => (
-    <div key={ri} className="pos__sel-row">
-      {row.map((s) => (
-        <span
-          key={s._id}
-          className="pos__sel-btn pos__sel-btn--size"
-          style={{ cursor: 'default', opacity: 1 }}
-        >
-          {s.name}
-        </span>
-      ))}
-    </div>
-  ))}
-</div>
+          <div className="pos__sel-grp">
+            <div className="pos__sel-hdr">
+              <span className="pos__sel-label">Size</span>
+            </div>
+            {sizeRows.map((row, ri) => (
+              <div key={ri} className="pos__sel-row">
+                {row.map((s) => (
+                  <span
+                    key={s._id}
+                    className="pos__sel-btn pos__sel-btn--size"
+                    style={{ cursor: 'default', opacity: 1 }}
+                  >
+                    {s.name}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
 
           <div className="pos__card-qty-area">
             {product.slot > 0 && (
               <p className="pos__card-min">{product.slot} slot{product.slot !== 1 ? 's' : ''} available</p>
+            )}
+            {product.slot === 0 && (
+              <p className="pos__card-min" style={{ color: '#c0392b' }}>No slots available</p>
             )}
             {minQty > 0 && (
               <p className="pos__card-min">{minQty} pack{minQty !== 1 ? 's' : ''} per slot</p>
@@ -553,7 +550,14 @@ function ProductCard({ product, sel, onSel, onAdd }) {
             <span className="pos__card-pcs">{product.quantityPerPack ?? 0} packs per slot</span>
           </div>
         </div>
-        <button className="pos__card-add-btn" onClick={onAdd}>Add Order</button>
+        <button
+          className="pos__card-add-btn"
+          onClick={onAdd}
+          disabled={product.slot === 0}
+          style={{ opacity: product.slot === 0 ? 0.4 : 1, cursor: product.slot === 0 ? 'not-allowed' : 'pointer' }}
+        >
+          {product.slot === 0 ? 'No Slots' : 'Add Order'}
+        </button>
       </div>
     </div>
   );
