@@ -318,8 +318,8 @@ export default function Product() {
         productDescription: form.description,
         size:               form.sizes,
         set:                form.sets,
-        slot:               Number(form.minSlot)   || 0,
-        packsPerSlot:       Number(form.packQty)   || 0,
+        slot:               Number(form.minSlot)    || 0,
+        packsPerSlot:       Number(form.packQty)    || 0,
         quantityPerPack:    Number(form.qtyPerPack) || 0,
         wholesalePrice:     Number(form.sellingPrice) || 0,
         retailPrice:        Number(form.retailPrice)  || 0,
@@ -554,7 +554,8 @@ export default function Product() {
                 <th>Product img</th>
                 <th>Product Name</th>
                 <th>Size</th>
-                <th>Packs/Slot</th>
+                <th>Slot Available</th>
+                <th>Min Pack</th>
                 <th>Stock</th>
                 <th>Unit Price</th>
                 <th>Price Per Pack</th>
@@ -598,13 +599,13 @@ export default function Product() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={10} style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(0,0,0,0.4)' }}>
+                  <td colSpan={11} style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(0,0,0,0.4)' }}>
                     Loading products…
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={10} style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(0,0,0,0.35)', fontStyle: 'italic' }}>
+                  <td colSpan={11} style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(0,0,0,0.35)', fontStyle: 'italic' }}>
                     No products found.
                   </td>
                 </tr>
@@ -635,7 +636,8 @@ export default function Product() {
                       </td>
                       <td className="product-page__td">{p.name}</td>
                       <td className="product-page__td">{sizeLabels || '—'}</td>
-                      <td className="product-page__td">{p.quantityPerPack ?? '—'}</td>
+                      <td className="product-page__td">{p.slot ?? '—'}</td>
+                      <td className="product-page__td">{p.packsPerSlot ?? '—'}</td>
                       <td className="product-page__td">{p.stock ?? 0}</td>
                       <td className="product-page__td">₱ {(p.retailPrice ?? 0).toLocaleString()}</td>
                       <td className="product-page__td">₱ {(p.wholesalePrice ?? p.pricePerPack ?? 0).toLocaleString()}</td>
