@@ -504,18 +504,24 @@ function ProductCard({ product, sel, onSel, onAdd }) {
             ))}
           </div>
 
-          <div className="pos__sel-grp">
-            <div className="pos__sel-hdr">
-              <span className="pos__sel-label">Size</span>
-            </div>
-          <div className="pos__sel-row">
-            {sizes.map((s) => (
-              <span key={s._id} className="pos__size-tag">
-                {s.name}
-              </span>
-            ))}
-          </div>
-          </div>
+         <div className="pos__sel-grp">
+  <div className="pos__sel-hdr">
+    <span className="pos__sel-label">Size</span>
+  </div>
+  {sizeRows.map((row, ri) => (
+    <div key={ri} className="pos__sel-row">
+      {row.map((s) => (
+        <span
+          key={s._id}
+          className="pos__sel-btn pos__sel-btn--size"
+          style={{ cursor: 'default', opacity: 1 }}
+        >
+          {s.name}
+        </span>
+      ))}
+    </div>
+  ))}
+</div>
 
           <div className="pos__card-qty-area">
             {product.slot > 0 && (
