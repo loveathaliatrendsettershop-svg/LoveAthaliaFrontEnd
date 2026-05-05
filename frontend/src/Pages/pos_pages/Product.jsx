@@ -18,7 +18,7 @@ const BLANK_FORM = {
   code: '', name: '', description: '',
   sizes: [], sets: [],
   sellingPrice: '', retailPrice: '',
-  minSlot: '', packQty: '',
+  minSlot: '', packQty: '', qtyPerPack: '',
   stockQty: '',
   category: '',
   images: [],
@@ -236,7 +236,8 @@ export default function Product() {
       sellingPrice: product.wholesalePrice  ?? '',
       retailPrice:  product.retailPrice     ?? '',
       minSlot:      product.slot            ?? '',
-      packQty:      product.quantityPerPack ?? '',
+      packQty:      product.packsPerSlot    ?? '',
+      qtyPerPack:   product.quantityPerPack ?? '',
       stockQty:     product.stock           ?? '',
       category:     product.category        ?? '',
       images:       (product.images ?? []).map(u =>
@@ -272,6 +273,9 @@ export default function Product() {
     }
     if (isEmpty(form.packQty)) {
       showAlert('warning', 'Required Field', 'Packs per Slot is required.'); return;
+    }
+    if (isEmpty(form.qtyPerPack) || Number(form.qtyPerPack) <= 0) {
+      showAlert('warning', 'Required Field', 'Pieces per Pack is required.'); return;
     }
     if (isEmpty(form.sellingPrice) || Number(form.sellingPrice) <= 0) {
       showAlert('warning', 'Required Field', 'Selling Price must be greater than 0.'); return;
@@ -314,8 +318,9 @@ export default function Product() {
         productDescription: form.description,
         size:               form.sizes,
         set:                form.sets,
-        slot:               Number(form.minSlot)  || 0,
-        quantityPerPack:    Number(form.packQty)  || 0,
+        slot:               Number(form.minSlot)   || 0,
+        packsPerSlot:       Number(form.packQty)   || 0,
+        quantityPerPack:    Number(form.qtyPerPack) || 0,
         wholesalePrice:     Number(form.sellingPrice) || 0,
         retailPrice:        Number(form.retailPrice)  || 0,
         category:           form.category,
@@ -720,9 +725,21 @@ export default function Product() {
                         value={form.minSlot} onChange={(e) => setForm(f => ({ ...f, minSlot: e.target.value }))} />
                     </div>
                     <div className="pmodal__sub-field">
-                      <label className="pmodal__sub-label">Packs per Slot: <span className="pmodal__required">*</span></label>
-                      <input className="pmodal__sub-input" placeholder="How many packs per slot"
-                        value={form.packQty} onChange={(e) => setForm(f => ({ ...f, packQty: e.target.value }))} />
+                      <label className="pmodal__sub-label">Quantity per slot: <span className="pmodal__required">*</span></label>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <input
+                          className="pmodal__sub-input"
+                          placeholder="pack"
+                          value={form.packQty}
+                          onChange={(e) => setForm(f => ({ ...f, packQty: e.target.value }))}
+                        />
+                        <input
+                          className="pmodal__sub-input"
+                          placeholder="pieces per pack"
+                          value={form.qtyPerPack}
+                          onChange={(e) => setForm(f => ({ ...f, qtyPerPack: e.target.value }))}
+                        />
+                      </div>
                     </div>
                     <div className="pmodal__price-fields">
                       <div className="pmodal__sub-field">
@@ -888,6 +905,7 @@ export default function Product() {
                   <div className="pmodal__pricing-card pmodal__pricing-card--readonly">
                     <div className="pmodal__price-readonly-row"><span className="pmodal__sub-label">Slot Availability:</span><span>{form.minSlot || '—'}</span></div>
                     <div className="pmodal__price-readonly-row"><span className="pmodal__sub-label">Packs per Slot:</span><span>{form.packQty || '—'}</span></div>
+                    <div className="pmodal__price-readonly-row"><span className="pmodal__sub-label">Pieces per Pack:</span><span>{form.qtyPerPack || '—'}</span></div>
                     <div className="pmodal__price-readonly-row"><span className="pmodal__sub-label">Selling Price:</span><span>₱ {form.sellingPrice || '—'}</span></div>
                     <div className="pmodal__price-readonly-row"><span className="pmodal__sub-label">Retail Price:</span><span>₱ {form.retailPrice || '—'}</span></div>
                   </div>
