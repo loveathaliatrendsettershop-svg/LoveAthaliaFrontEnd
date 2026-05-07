@@ -549,7 +549,8 @@ function ProductCard({ product, sel, onSel, onAdd }) {
           </div>
           <div className="pos__card-meta">
             <span className="pos__card-stock-lbl">Stock: {product.stock ?? 0}</span>
-            <span className="pos__card-pcs">{product.quantityPerPack ?? 0} packs per slot</span>
+            {/* ✅ FIXED: was product.quantityPerPack, now correctly shows packsPerSlot */}
+            <span className="pos__card-pcs">{product.packsPerSlot ?? 0} packs per slot</span>
           </div>
         </div>
         <button
