@@ -463,7 +463,7 @@ function ProductCard({ product, sel, onSel, onAdd }) {
   const sizes    = product.size || [];
   const setRows  = chunk(sets,  4);
   const sizeRows = chunk(sizes, 5);
-  const minQty   = product.quantityPerPack || 1;
+  const minQty   = product.packsPerSlot || 1;
 
   return (
     <div className="pos__card">
