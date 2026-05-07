@@ -73,7 +73,7 @@ export default function POS() {
         initSels[p._id] = {
           set:   p.set?.[0]?.name || '',
           sizes: p.size?.map(s => s.name) || [],
-          qty:   p.quantityPerPack || 1,
+          qty:   p.packsPerSlot  || 1,
         };
       });
       setSels(initSels);
